@@ -30,4 +30,4 @@ En cas de jour de chance, une IA diffuse via haut-parleur des mauvais compliment
 
 ---
 
-*Réalisé par [Yacine Harrache](https://github.com/yacinehrc) — BTS SIO SLAM | EPSI Lille*
+*Réalisé par [Yacine Harrache](https://github.com/yacinehrc), [Gauthier Bernanrd_](https://github.com/bernardgauthier10), [Cyril Prevot](https://github.com/G-Cyril-P),[Louis Agthe](https://github.com/LGame127),[Théo Blaise](https://github.com/theoblaise1) — Étudiants en BTS SIO | EPSI Lille*
