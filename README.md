@@ -2,7 +2,7 @@
  
 <img width="1024" height="572" alt="erreurscope_img" src="https://github.com/user-attachments/assets/2d4a7fe4-67b1-4854-8f4f-e4e9b31cfd57" />
  
-> Un coffret en bois interactif conçu pendant le Workshop 2026 B2 de l'EPSI Lille, inspiré de l'univers de Rick & Morty : une boîte verrouillée qui ne s'ouvre qu'en posant la « bonne » mouche imprimée en 3D (tag RFID dissimulé) sur le lecteur. Une fois ouverte, l'utilisateur énonce son prénom et sa date de naissance dans un microphone, et la machine lui répond par un horoscope volontairement acide — le but assumé étant de démarrer la journée avec un peu moins d'estime de soi.
+> Un coffret en bois interactif conçu pendant le Workshop 2026 B2 de l'EPSI Lille, inspiré de l'univers de Rick & Morty : une boîte verrouillée qui ne s'ouvre qu'en posant la bonne combinaison de mouches imprimée en 3D sur le devant de la boîte. Une fois ouverte, l'utilisateur énonce son prénom et sa date de naissance dans un microphone, et la machine lui répond par un horoscope volontairement acide — le but assumé étant de démarrer la journée avec un peu moins d'estime de soi.
  
 ---
  
