@@ -1,6 +1,6 @@
 # L'ERREURSCOPE
  
-![erreurscope_img](Images/erreurscope_img.jpg)
+<img width="1024" height="572" alt="erreurscope_img" src="https://github.com/user-attachments/assets/2d4a7fe4-67b1-4854-8f4f-e4e9b31cfd57" />
  
 > Un coffret en bois interactif conçu pendant le Workshop 2026 B2 de l'EPSI Lille, inspiré de l'univers de Rick & Morty : une boîte verrouillée qui ne s'ouvre qu'en posant la « bonne » mouche imprimée en 3D (tag RFID dissimulé) sur le lecteur. Une fois ouverte, l'utilisateur énonce son prénom et sa date de naissance dans un microphone, et la machine lui répond par un horoscope volontairement acide — le but assumé étant de démarrer la journée avec un peu moins d'estime de soi.
  
@@ -90,14 +90,14 @@ L'alimentation est distribuée : **5V** pour le servomoteur, le LCD et le Raspbe
  
 Pour garantir une intégration propre du câblage, une répartition correcte de la masse et un accès d'entretien simple, l'intérieur du coffret a été découpé en quatre plateaux fonctionnels.
  
-![structure_face_profil](Images/structure_face_profil.png)
- 
+<img width="1177" height="732" alt="schema_boite_portrait_face" src="https://github.com/user-attachments/assets/c571721b-0543-4358-994b-84ae04b066bf" />
+
 ### Étage 1 — Base inférieure
  
 Électronique de puissance et de contrôle : carte Arduino, breadboard principal de distribution et module RFID RC522 orienté vers la plaque supérieure.
  
-![etage_1](Images/etage_1.png)
- 
+<img width="994" height="615" alt="etage_1" src="https://github.com/user-attachments/assets/fb5f10fe-3aac-4504-b814-f1458f958407" />
+
 ### Étage 2 — Plateau intermédiaire
  
 Étage « invisible » : il sert de surface de pose aux mouches décoratives et assure l'isolation physique entre la base électronique et les étages supérieurs.
@@ -106,13 +106,13 @@ Pour garantir une intégration propre du câblage, une répartition correcte de 
  
 Raspberry Pi 3, breadboard secondaire et les deux enceintes orientées vers l'avant et l'arrière de l'écran intégré à la paroi.
  
-![etage_3](Images/etage_3.png)
- 
+<img width="1182" height="732" alt="etage_3" src="https://github.com/user-attachments/assets/9e448592-4acb-47b7-9392-fc4104b041ca" />
+
 ### Étage 4 — Interface utilisateur
  
 Écran LCD encastré dans son support imprimé en 3D, bouton poussoir bleu, ouvertures haut-parleurs, et servomoteur couplé au bâton de balsa qui sert de levier de déverrouillage.
  
-![etage_4](Images/etage_4.png)
+<img width="1177" height="734" alt="etage_4" src="https://github.com/user-attachments/assets/08361caa-b5f3-42f4-9414-23cd9f6e8174" />
  
 ---
  
@@ -252,7 +252,8 @@ Le prototypage et la fabrication ont été entièrement réalisés au **myDiL**.
 **Étape 1 — Validation électronique sur breadboard**
 Câblage initial et validation des communications entre les modules.
  
-![proto_breadboard](Images/proto_breadboard.jpg)
+<img width="3060" height="4080" alt="prototype_test" src="https://github.com/user-attachments/assets/fe31ad7b-7e79-4e55-8bd2-0b088fcbb2ce" />
+
  
 **Étape 2 — Prototype fonctionnel en carton**
 Maquette volumétrique pour tester l'ergonomie, l'encastrement du LCD et le mécanisme de déverrouillage avant d'engager du bois.
