@@ -258,28 +258,29 @@ Câblage initial et validation des communications entre les modules.
 **Étape 2 — Prototype fonctionnel en carton**
 Maquette volumétrique pour tester l'ergonomie, l'encastrement du LCD et le mécanisme de déverrouillage avant d'engager du bois.
  
-![proto_carton](Images/proto_carton.jpg)
- 
+<img width="1080" height="1920" alt="prototype_boite_ouverte" src="https://github.com/user-attachments/assets/532e7f38-bc1e-43dd-921b-38652395db93" />
+
 **Étape 3 — Découpe et assemblage**
 Découpe des planches de contreplaqué et ajustement des panneaux.
  
-![decoupe_panneaux](Images/decoupe_panneaux.jpg)
- 
+<img width="3060" height="4080" alt="decoupe_bois" src="https://github.com/user-attachments/assets/d1d47b3f-0469-4503-96e7-d8866c75c774" />
+
 **Étape 4 — Finition structurale et intégration**
 Assemblage des compartiments et découpe des ouvertures haut-parleurs.
  
-![structure_bois](Images/structure_bois.jpg)
- 
+<img width="3060" height="4080" alt="boite_visuel_dessus" src="https://github.com/user-attachments/assets/0ffbd600-9dfc-4aaf-ba91-d71e520f2697" />
+
 **Étape 5 — Éléments d'articulation 3D**
 Conception puis renforcement itératif des charnières.
  
-![pieces_3d](Images/pieces_3d.jpg)
+<img width="3060" height="4080" alt="charnieres_3D" src="https://github.com/user-attachments/assets/623bde05-44c8-484b-b63a-b51c71da19ea" />
+
  
 **Étape 6 — Gravure laser du couvercle**
 Gravure détaillée du cadran horoscope RickLab™.
  
-![couvercle_grave](Images/couvercle_grave.jpg)
- 
+<img width="3060" height="4080" alt="gravure_couvercle" src="https://github.com/user-attachments/assets/9e784439-ea1a-4ac2-9af6-b3d3c1524fc2" />
+
 ---
  
 ## Organisation du projet
@@ -305,10 +306,12 @@ Méthodologie **Agile**, avec un *daily stand-up* de 10 minutes chaque matin pou
 | **Mercredi** | Découpe laser, impression 3D des pièces mécaniques, assemblage du coffret |
 | **Jeudi** | Gravure finale, ajustements audio, tests généraux |
  
-![brainstorming](Images/brainstorming.jpg)
- 
-![planning_tableau](Images/planning_tableau.jpg)
- 
+<img width="4080" height="3060" alt="brainstorming_mardi" src="https://github.com/user-attachments/assets/77f1e5d8-1d6f-49ee-aa4a-f9645e0b81fa" />
+
+<img width="4080" height="3060" alt="brainstorming_mercredi" src="https://github.com/user-attachments/assets/6a340289-4305-4457-8f5f-1a6e9b1fd73f" />
+
+<img width="4080" height="3060" alt="brainstorming_jeudi" src="https://github.com/user-attachments/assets/4aa8b7f6-9180-4972-97eb-4fe96b7405e2" />
+
 ---
  
 ## Difficultés rencontrées
