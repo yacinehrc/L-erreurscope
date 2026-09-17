@@ -317,9 +317,7 @@ Méthodologie **Agile**, avec un *daily stand-up* de 10 minutes chaque matin pou
 ## Difficultés rencontrées
  
 **Fragilité des charnières imprimées.** Le premier modèle cédait sous la contrainte. Une seconde version épaissie a été développée, puis un troisième modèle spécifique **encastré** a finalement été retenu pour s'adapter aux contraintes d'espace intérieur du couvercle.
- 
-**Vibrations et conflits du servomoteur.** Le servo maintenu sous tension tremblait et perturbait le bus SPI du lecteur RFID. La solution retenue a été de systématiquement `detach()` le signal PWM dès la fin de chaque mouvement, et de ne le rattacher qu'au moment d'actionner le levier.
- 
+
 **Panne de la carte SD du Raspberry Pi.** En fin d'après-midi du dernier jour, la carte SD a lâché. Il a fallu reconfigurer une nouvelle carte et réinstaller les scripts Python dans l'urgence pour que le projet reste opérationnel pour la présentation.
  
 ---
