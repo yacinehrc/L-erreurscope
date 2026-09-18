@@ -113,7 +113,11 @@ Raspberry Pi 3, breadboard secondaire et les deux enceintes orientées vers l'av
 Écran LCD encastré dans son support imprimé en 3D, bouton poussoir bleu, ouvertures haut-parleurs, et servomoteur couplé au bâton de balsa qui sert de levier de déverrouillage.
  
 <img width="1177" height="734" alt="etage_4" src="https://github.com/user-attachments/assets/08361caa-b5f3-42f4-9414-23cd9f6e8174" />
- 
+
+ ### Boîte finale
+
+ <img width="3060" height="4080" alt="boite_finale" src="https://github.com/user-attachments/assets/7962876a-8316-49bd-9a1a-25a7f73f0c51" />
+
 ---
  
 ## Code embarqué Arduino
