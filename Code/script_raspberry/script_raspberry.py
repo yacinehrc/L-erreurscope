@@ -1,18 +1,12 @@
 #!/usr/bin/env python3
-"""
-Reconnaissance vocale en français (Vosk, hors-ligne), en mode "appuyer pour parler" :
-maintenez le bouton poussoir enfoncé pour parler, relâchez pour valider.
-Affichage sur écran LCD I2C (16x2, backpack PCF8574), un mot par ligne.
-
-Matériel : Raspberry Pi, écran LCD I2C, micro USB, bouton poussoir sur GPIO27.
-"""
-
 import json
 import queue
 import re
+import subprocess
 import threading
 import time
 import unicodedata
+from pathlib import Path
 
 import sounddevice as sd
 import vosk
@@ -20,126 +14,113 @@ from gpiozero import Button
 from RPLCD.i2c import CharLCD
 from text_to_num import alpha2digit
 
-# ---------------------------------------------------------------------------
-# CONFIGURATION - à adapter si besoin
-# ---------------------------------------------------------------------------
 MODEL_PATH = "vosk-model-small-fr-0.22"
-SAMPLE_RATE = 16000
-DEVICE_INDEX = None
+DEVICE_INDEX = 1
+SAMPLE_RATE = int(sd.query_devices(DEVICE_INDEX, "input")["default_samplerate"])
 
-I2C_ADDRESS = 0x27   # confirmé via i2cdetect -y 1
-LCD_COLS = 16        # 16 pour un écran 16x2, 20 pour un 20x4
-LCD_ROWS = 2         # 2 pour un écran 16x2, 4 pour un 20x4
+I2C_ADDRESS = 0x27
+LCD_COLS = 16
+LCD_ROWS = 2
+DELAI_ENTRE_MOTS = 0.6
 
-DELAI_ENTRE_MOTS = 0.6  # secondes d'affichage par mot
+BOUTON_PIN = 27
 
-BOUTON_PIN = 27  # GPIO27, pin physique 13
-
-lcd = CharLCD('PCF8574', I2C_ADDRESS, cols=LCD_COLS, rows=LCD_ROWS)
-bouton = Button(BOUTON_PIN, bounce_time=0.05)
-
-en_ecoute = threading.Event()
-
-
-def convertir_chiffres(texte):
-    """Convertit les nombres écrits en toutes lettres en chiffres (ex. 'quatorze' -> '14')."""
-    try:
-        return alpha2digit(texte, "fr")
-    except Exception:
-        return texte
-
+DOSSIER_AUDIOS = Path("/home/pi/erreurscope/audios")
+NB_VOCAUX = 10
+SORTIE_AUDIO = "plughw:CARD=Headphones,DEV=0"
 
 MOIS_FR = {
     "janvier": "01", "février": "02", "mars": "03", "avril": "04",
     "mai": "05", "juin": "06", "juillet": "07", "août": "08",
     "septembre": "09", "octobre": "10", "novembre": "11", "décembre": "12",
 }
-MOTIF_MOIS = re.compile(r"\b(" + "|".join(MOIS_FR.keys()) + r")\b", re.IGNORECASE)
-
-
-def convertir_mois(texte):
-    """Remplace les noms de mois en français par leur numéro sur 2 chiffres (ex. 'mai' -> '05')."""
-    return MOTIF_MOIS.sub(lambda m: MOIS_FR[m.group(0).lower()], texte)
-
-
+MOTIF_MOIS = re.compile(r"\b(" + "|".join(MOIS_FR) + r")\b", re.IGNORECASE)
 MOTIF_DATE = re.compile(r"\b(\d{1,2})\s+(\d{2})\s+(\d{4})\b")
+MOTIF_DATE_COMPLETE = re.compile(r"\b\d{1,2}/\d{2}/\d{4}\b")
+MOTIF_MOT = re.compile(r"[^\W\d_]{2,}")
+
+lcd = CharLCD("PCF8574", I2C_ADDRESS, cols=LCD_COLS, rows=LCD_ROWS)
+bouton = Button(BOUTON_PIN, bounce_time=0.05)
+
+vosk.SetLogLevel(-1)
+recognizer = vosk.KaldiRecognizer(vosk.Model(MODEL_PATH), SAMPLE_RATE)
+
+audio_queue = queue.Queue()
+en_ecoute = threading.Event()
+lecteur = None
+numero = 1
 
 
-def convertir_dates(texte):
-    """Relie jour/mois/année par des '/' quand les 3 se suivent (ex. '14 05 2017' -> '14/05/2017')."""
+def normaliser(texte):
+    try:
+        texte = alpha2digit(texte, "fr")
+    except Exception:
+        pass
+    texte = MOTIF_MOIS.sub(lambda m: MOIS_FR[m.group(0).lower()], texte)
     return MOTIF_DATE.sub(r"\1/\2/\3", texte)
 
 
-def retirer_accents(texte):
-    """Remplace les caractères accentués par leur équivalent sans accent (ex. 'é' -> 'e'),
-    car l'écran LCD ne connaît pas ces caractères et affiche un symbole illisible à la place."""
+def contient_nom_et_date(texte):
+    return bool(MOTIF_DATE_COMPLETE.search(texte) and MOTIF_MOT.search(texte))
+
+
+def sans_accents(texte):
     nfkd = unicodedata.normalize("NFKD", texte)
     return "".join(c for c in nfkd if not unicodedata.combining(c))
 
 
-def afficher_apercu(texte):
-    """Affiche un aperçu rapide (résultat partiel en cours), sans délai entre mots."""
-    texte = retirer_accents(texte)
+def afficher(texte):
+    texte = sans_accents(texte)
     lcd.clear()
-    for i in range(LCD_ROWS):
-        debut = i * LCD_COLS
-        morceau = texte[debut:debut + LCD_COLS]
+    for ligne in range(LCD_ROWS):
+        morceau = texte[ligne * LCD_COLS:(ligne + 1) * LCD_COLS]
         if not morceau:
             break
-        lcd.cursor_pos = (i, 0)
+        lcd.cursor_pos = (ligne, 0)
         lcd.write_string(morceau)
 
 
-def afficher_mots(texte, delai=DELAI_ENTRE_MOTS):
-    """Affiche chaque mot du texte l'un après l'autre, un mot par ligne."""
-    texte = retirer_accents(texte)
-    mots = texte.split()
-    if not mots:
-        afficher_apercu("Rien entendu")
-        return
+def afficher_mots(texte):
+    mots = sans_accents(texte).split()
     lcd.clear()
-    ligne = 0
-    dernier_index = len(mots) - 1
     for index, mot in enumerate(mots):
+        ligne = index % LCD_ROWS
+        if index and ligne == 0:
+            lcd.clear()
         lcd.cursor_pos = (ligne, 0)
         lcd.write_string(mot[:LCD_COLS])
-
-        if index == dernier_index:
-            break  # dernier mot : on le laisse affiché, pas de clear après
-
-        time.sleep(delai)
-        ligne += 1
-        if ligne >= LCD_ROWS:
-            lcd.clear()
-            ligne = 0
+        if index < len(mots) - 1:
+            time.sleep(DELAI_ENTRE_MOTS)
 
 
-# ---------------------------------------------------------------------------
-# INITIALISATION DE LA RECONNAISSANCE VOCALE
-# ---------------------------------------------------------------------------
-vosk.SetLogLevel(-1)
-modele = vosk.Model(MODEL_PATH)
-recognizer = vosk.KaldiRecognizer(modele, SAMPLE_RATE)
+def arreter_audio():
+    if lecteur and lecteur.poll() is None:
+        lecteur.terminate()
 
-audio_queue = queue.Queue()
+
+def jouer_vocal_suivant():
+    global lecteur, numero
+    chemin = DOSSIER_AUDIOS / f"vocal {numero}.mp3"
+    numero = numero % NB_VOCAUX + 1
+    if chemin.exists():
+        arreter_audio()
+        lecteur = subprocess.Popen(["mpg123", "-q", "-o", "alsa", "-a", SORTIE_AUDIO, str(chemin)])
 
 
 def callback_audio(indata, frames, temps, status):
-    if status:
-        print(status)
     if en_ecoute.is_set():
         audio_queue.put(bytes(indata))
 
 
 def main():
-    afficher_apercu("Appuyez pour parler")
-    print("Prêt. Maintenez le bouton enfoncé pour parler (Ctrl+C pour arrêter).")
-
+    afficher("Appuyez pour parler")
     etait_presse = False
+    dernier_partiel = ""
 
     with sd.RawInputStream(
         samplerate=SAMPLE_RATE,
-        blocksize=8000,
+        blocksize=4000,
+        latency="high",
         device=DEVICE_INDEX,
         dtype="int16",
         channels=1,
@@ -148,64 +129,52 @@ def main():
         while True:
             presse = bouton.is_pressed
 
-            # Vient d'être pressé : démarre une écoute propre
             if presse and not etait_presse:
+                arreter_audio()
                 recognizer.Reset()
+                dernier_partiel = ""
                 with audio_queue.mutex:
                     audio_queue.queue.clear()
-                afficher_apercu("Parlez...")
-                print("Bouton pressé : écoute en cours...")
+                afficher("Parlez...")
                 en_ecoute.set()
 
-            # Vient d'être relâché : finalise et affiche
-            elif not presse and etait_presse:
+            elif etait_presse and not presse:
                 en_ecoute.clear()
-                afficher_apercu("Analyse...")
-                # Vide tout l'audio encore en attente avant de finaliser,
-                # pour ne pas perdre la fin de la phrase
-                while True:
-                    try:
-                        data_restante = audio_queue.get_nowait()
-                    except queue.Empty:
-                        break
-                    recognizer.AcceptWaveform(data_restante)
-
-                resultat = json.loads(recognizer.FinalResult())
-                texte = resultat.get("text", "").strip()
-                print("Bouton relâché.")
+                afficher("Analyse...")
+                while not audio_queue.empty():
+                    recognizer.AcceptWaveform(audio_queue.get_nowait())
+                texte = normaliser(json.loads(recognizer.FinalResult()).get("text", "").strip())
                 if texte:
-                    texte = convertir_chiffres(texte)
-                    texte = convertir_mois(texte)
-                    texte = convertir_dates(texte)
                     print("Transcrit :", texte)
                     afficher_mots(texte)
+                    if contient_nom_et_date(texte):
+                        jouer_vocal_suivant()
                 else:
-                    afficher_apercu("Rien entendu")
+                    afficher("Rien entendu")
 
             etait_presse = presse
 
-            if presse:
-                try:
-                    data = audio_queue.get(timeout=0.05)
-                except queue.Empty:
-                    data = None
-                if data:
-                    if not recognizer.AcceptWaveform(data):
-                        partiel = json.loads(recognizer.PartialResult())
-                        texte_partiel = partiel.get("partial", "").strip()
-                        if texte_partiel:
-                            texte_partiel = convertir_chiffres(texte_partiel)
-                            texte_partiel = convertir_mois(texte_partiel)
-                            texte_partiel = convertir_dates(texte_partiel)
-                            afficher_apercu(texte_partiel)
-            else:
+            if not presse:
                 time.sleep(0.02)
+                continue
+
+            try:
+                data = audio_queue.get(timeout=0.05)
+            except queue.Empty:
+                continue
+
+            if recognizer.AcceptWaveform(data):
+                continue
+
+            partiel = normaliser(json.loads(recognizer.PartialResult()).get("partial", "").strip())
+            if partiel and partiel != dernier_partiel:
+                afficher(partiel)
+                dernier_partiel = partiel
 
 
 if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\nArrêt.")
+        arreter_audio()
         lcd.clear()
-        lcd.write_string("Arrete")
